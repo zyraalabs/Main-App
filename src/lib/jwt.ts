@@ -61,3 +61,31 @@ export function verifyJWT(token: string): JWTPayload | null {
     return null;
   }
 }
+
+export interface ConfigPayload {
+  userId: string;
+  email: string;
+  apiEndpoint: string;
+  permissions: string[];
+  exp: number;
+}
+
+export function generateConfigToken(userData: {
+  id: string;
+  email: string;
+}): string {
+  const payload: ConfigPayload = {
+    userId: userData.id,
+    email: userData.email,
+    apiEndpoint: process.env.APP_URL || "http://localhost:3001",
+    permissions: ["build", "deploy", "logs"],
+    exp: Math.floor(Date.now() / 1000) + 365 * 24 * 60 * 60,
+  };
+
+  const secret = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET;
+  if (!secret) {
+    throw new Error("JWT_SECRET or NEXTAUTH_SECRET must be defined");
+  }
+
+  return jwt.sign(payload, secret);
+}
