@@ -1,11 +1,29 @@
 import { NextRequest } from "next/server";
+import { authServiceAxiosInstance } from "@/lib/axiosInstance";
 import { logger } from "@/lib/logger";
 import { SuccessResponse } from "@/lib/apiResponse";
-import { connectToDatabase } from "@/lib/db";
 
 export async function POST(request: NextRequest) {
   try {
-    await connectToDatabase();
+    const cookieHeader = request.headers.get("cookie") || "";
+
+    try {
+      await authServiceAxiosInstance.get("/api/auth/signout", {
+        headers: {
+          Cookie: cookieHeader,
+        },
+        withCredentials: true,
+      });
+
+      logger.info("auth-logout", "Logged out from authentication service");
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      logger.warn(
+        "auth-logout",
+        `Failed to logout from authentication service: ${errorMsg}`
+      );
+    }
+
     const response = SuccessResponse({
       message: "Logout successful",
     });
@@ -26,7 +44,7 @@ export async function POST(request: NextRequest) {
       path: "/",
     });
 
-    logger.info("auth-logout", "Authentication cookies cleared successfully");
+    logger.info("auth-logout", "Local authentication cookies cleared");
 
     return response;
   } catch (error) {
