@@ -1,6 +1,7 @@
 "use client";
 
 import type { UserInfo } from "./auth";
+import { logger } from "./logger";
 
 export function getUserInfoFromCookie(): UserInfo | null {
   if (typeof window === "undefined") {
@@ -21,7 +22,11 @@ export function getUserInfoFromCookie(): UserInfo | null {
 
     return JSON.parse(userInfoCookie) as UserInfo;
   } catch (error) {
-    console.error("Failed to parse user info from cookie:", error);
+    logger.error(
+      "getUserInfoFromCookie",
+      "Failed to parse user info from cookie",
+      error
+    );
     return null;
   }
 }
