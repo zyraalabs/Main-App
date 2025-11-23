@@ -8,6 +8,7 @@ const publicRoutes = [
   "/auth-test",
   "/api/auth/callback",
   "/api/auth/logout",
+  "/cli-auth",
 ];
 
 export function middleware(request: NextRequest) {

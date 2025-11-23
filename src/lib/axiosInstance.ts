@@ -13,4 +13,9 @@ const authServiceAxiosInstance = axios.create({
   timeout: 10000,
 });
 
-export { axiosInstance, authServiceAxiosInstance };
+const cliBackendAxiosInstance = axios.create({
+  baseURL: process.env.CLI_BACKEND_URL || "http://localhost:4000",
+  timeout: 10000,
+});
+
+export { axiosInstance, authServiceAxiosInstance, cliBackendAxiosInstance };
