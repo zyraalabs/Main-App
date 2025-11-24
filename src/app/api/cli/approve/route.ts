@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { cookies } from "next/headers";
 import { getCurrentUser } from "@/lib/auth";
 import { generateConfigToken } from "@/lib/jwt";
 import { SuccessResponse, ErrorResponse } from "@/lib/apiResponse";
@@ -14,6 +15,14 @@ export async function POST(req: NextRequest) {
       return ErrorResponse("Unauthorized", 401);
     }
 
+    const cookieStore = await cookies();
+    const authToken = cookieStore.get("auth-token");
+
+    if (!authToken) {
+      logger.warn("cli-approve", "No auth token found");
+      return ErrorResponse("Unauthorized", 401);
+    }
+
     const { requestId } = await req.json();
 
     if (!requestId) {
@@ -26,11 +35,14 @@ export async function POST(req: NextRequest) {
       email: user.email,
     });
 
-    const result = await approveCliLogin({
-      requestId,
-      userId: user.id,
-      token: configToken,
-    });
+    const result = await approveCliLogin(
+      {
+        requestId,
+        userId: user.id,
+        token: configToken,
+      },
+      authToken.value
+    );
 
     if (result.code === "error") {
       const errorMessage =
