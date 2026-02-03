@@ -23,7 +23,6 @@ function CliAuthForm() {
     const userInfo = getUserInfoFromCookie();
 
     if (!userInfo) {
-      // Not logged in - redirect to auth service with callback
       const authUrl = process.env.NEXT_PUBLIC_AUTH_SERVICE_URL || "http://localhost:3000";
       const currentUrl = window.location.href;
       window.location.href = `${authUrl}/login?callbackUrl=${encodeURIComponent(currentUrl)}`;
