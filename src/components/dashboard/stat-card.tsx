@@ -21,9 +21,7 @@ export function StatCard({ label, value, sub, accent }: StatCardProps) {
       >
         {value}
       </p>
-      {sub && (
-        <p className="text-[11px] text-muted-foreground mt-1">{sub}</p>
-      )}
+      {sub && <p className="text-[11px] text-muted-foreground mt-1">{sub}</p>}
     </div>
   );
 }

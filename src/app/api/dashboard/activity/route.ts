@@ -5,14 +5,17 @@ import { Generation } from "@/models/generation";
 
 export async function GET() {
   const user = await getCurrentUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!user)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   await connectToDatabase();
 
   const recent = await Generation.find({ userId: user.id })
     .sort({ createdAt: -1 })
     .limit(10)
-    .select("prompt framework filesGenerated inputTokens outputTokens durationMs createdAt reprompts")
+    .select(
+      "prompt framework filesGenerated inputTokens outputTokens durationMs createdAt reprompts",
+    )
     .lean();
 
   const activity = recent.flatMap((g) => {
@@ -25,15 +28,24 @@ export async function GET() {
       durationMs: g.durationMs,
       createdAt: g.createdAt,
     };
-    const reprompts = (g.reprompts ?? []).map((r) => ({
-      type: "reprompt" as const,
-      prompt: r.prompt,
-      framework: g.framework,
-      files: r.filesChanged,
-      tokens: (r.inputTokens ?? 0) + (r.outputTokens ?? 0),
-      durationMs: r.durationMs,
-      createdAt: r.createdAt,
-    }));
+    const reprompts = (g.reprompts ?? []).map(
+      (r: {
+        prompt: string;
+        filesChanged: number;
+        inputTokens: number;
+        outputTokens: number;
+        durationMs: number;
+        createdAt: Date;
+      }) => ({
+        type: "reprompt" as const,
+        prompt: r.prompt,
+        framework: g.framework,
+        files: r.filesChanged,
+        tokens: (r.inputTokens ?? 0) + (r.outputTokens ?? 0),
+        durationMs: r.durationMs,
+        createdAt: r.createdAt,
+      }),
+    );
     return [main, ...reprompts];
   });
 

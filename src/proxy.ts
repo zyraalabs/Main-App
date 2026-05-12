@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { verifyJWT } from "./lib/jwt";
 
 const protectedRoutes = ["/dashboard", "/profile", "/settings"];
@@ -22,7 +22,7 @@ export function proxy(request: NextRequest) {
   }
 
   const isProtectedRoute = protectedRoutes.some((route) =>
-    pathname.startsWith(route)
+    pathname.startsWith(route),
   );
 
   if (isProtectedRoute) {

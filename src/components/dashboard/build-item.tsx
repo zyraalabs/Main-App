@@ -29,7 +29,10 @@ function fmt(ms: number) {
 }
 
 function fmtDate(d: Date | string) {
-  return new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  return new Date(d).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
 }
 
 export function BuildItem({
@@ -54,17 +57,25 @@ export function BuildItem({
       >
         <span className="size-1.75 rounded-full bg-success-l shrink-0" />
         <div className="flex-1 min-w-0">
-          <p className="text-[13px] font-medium text-foreground truncate">{prompt}</p>
+          <p className="text-[13px] font-medium text-foreground truncate">
+            {prompt}
+          </p>
           <p className="font-mono text-[11px] text-fg-subtle mt-0.5">
-            {fmtDate(createdAt)} · {framework} · {fmt(durationMs)} · {tokens.toLocaleString()} tokens
+            {fmtDate(createdAt)} · {framework} · {fmt(durationMs)} ·{" "}
+            {tokens.toLocaleString()} tokens
           </p>
         </div>
         <span className="font-mono text-[10px] font-medium px-1.5 py-0.5 rounded bg-surface border border-border-mid text-muted-foreground whitespace-nowrap">
           {framework}
         </span>
-        <span className="font-mono text-[11px] text-fg-subtle w-14 text-right">{filesGenerated} files</span>
+        <span className="font-mono text-[11px] text-fg-subtle w-14 text-right">
+          {filesGenerated} files
+        </span>
         <ChevronRight
-          className={cn("size-4 text-fg-subtle transition-transform shrink-0", open && "rotate-90")}
+          className={cn(
+            "size-4 text-fg-subtle transition-transform shrink-0",
+            open && "rotate-90",
+          )}
         />
       </button>
 
@@ -75,11 +86,15 @@ export function BuildItem({
               key={r.prompt + String(i)}
               className="flex items-start gap-3 px-4 pl-9 py-2.5 border-b border-border last:border-none"
             >
-              <span className="font-mono text-[11px] text-fg-subtle mt-0.5 shrink-0">›</span>
+              <span className="font-mono text-[11px] text-fg-subtle mt-0.5 shrink-0">
+                ›
+              </span>
               <div>
                 <p className="text-[12px] text-muted-foreground">{r.prompt}</p>
                 <p className="font-mono text-[10px] text-fg-subtle mt-0.5">
-                  {fmtDate(r.createdAt)} · {r.filesChanged} files · {(r.inputTokens + r.outputTokens).toLocaleString()} tokens · {fmt(r.durationMs)}
+                  {fmtDate(r.createdAt)} · {r.filesChanged} files ·{" "}
+                  {(r.inputTokens + r.outputTokens).toLocaleString()} tokens ·{" "}
+                  {fmt(r.durationMs)}
                 </p>
               </div>
             </div>

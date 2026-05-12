@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 import { getUserInfoFromCookie } from "@/lib/auth-client";
 
 interface UserInfo {
@@ -23,7 +23,8 @@ function CliAuthForm() {
     const userInfo = getUserInfoFromCookie();
 
     if (!userInfo) {
-      const authUrl = process.env.NEXT_PUBLIC_AUTH_SERVICE_URL || "http://localhost:3000";
+      const authUrl =
+        process.env.NEXT_PUBLIC_AUTH_SERVICE_URL || "http://localhost:3000";
       const currentUrl = window.location.href;
       window.location.href = `${authUrl}/login?callbackUrl=${encodeURIComponent(currentUrl)}`;
       return;
@@ -82,7 +83,9 @@ function CliAuthForm() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full">
-          <h1 className="text-2xl font-bold text-red-600 mb-4">Invalid Request</h1>
+          <h1 className="text-2xl font-bold text-red-600 mb-4">
+            Invalid Request
+          </h1>
           <p className="text-gray-600 mb-4">
             This CLI authentication link is invalid or has expired.
           </p>
@@ -106,7 +109,8 @@ function CliAuthForm() {
 
         <div className="mb-6">
           <p className="text-gray-700 mb-4">
-            <strong>zyra CLI</strong> is requesting access to your Zyraa account.
+            <strong>zyra CLI</strong> is requesting access to your Zyraa
+            account.
           </p>
 
           <div className="bg-gray-50 p-4 rounded border border-gray-200">
@@ -114,7 +118,9 @@ function CliAuthForm() {
             <div className="font-medium text-gray-900">{user?.email}</div>
 
             <div className="text-sm text-gray-600 mb-1 mt-3">Plan</div>
-            <div className="font-medium text-gray-900">{user?.plan || "FREE"}</div>
+            <div className="font-medium text-gray-900">
+              {user?.plan || "FREE"}
+            </div>
           </div>
         </div>
 
@@ -142,7 +148,8 @@ function CliAuthForm() {
         </div>
 
         <p className="text-xs text-gray-500 mt-4 text-center">
-          This will allow the CLI to access your account for builds and deployments.
+          This will allow the CLI to access your account for builds and
+          deployments.
         </p>
       </div>
     </div>

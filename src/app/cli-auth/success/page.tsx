@@ -13,7 +13,8 @@ export default function SuccessPage() {
           CLI Access Approved!
         </h1>
         <p className="text-gray-600 mb-6">
-          You can now return to your terminal. The CLI has been successfully authenticated.
+          You can now return to your terminal. The CLI has been successfully
+          authenticated.
         </p>
         <button
           onClick={() => router.push("/dashboard")}

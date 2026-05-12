@@ -9,11 +9,14 @@ export function getUserInfoFromCookie(): UserInfo | null {
   }
 
   try {
-    const cookies = document.cookie.split(";").reduce((acc, cookie) => {
-      const [key, value] = cookie.trim().split("=");
-      acc[key] = decodeURIComponent(value);
-      return acc;
-    }, {} as Record<string, string>);
+    const cookies = document.cookie.split(";").reduce(
+      (acc, cookie) => {
+        const [key, value] = cookie.trim().split("=");
+        acc[key] = decodeURIComponent(value);
+        return acc;
+      },
+      {} as Record<string, string>,
+    );
 
     const userInfoCookie = cookies["user-info"];
     if (!userInfoCookie) {
@@ -25,7 +28,7 @@ export function getUserInfoFromCookie(): UserInfo | null {
     logger.error(
       "getUserInfoFromCookie",
       "Failed to parse user info from cookie",
-      error
+      error,
     );
     return null;
   }

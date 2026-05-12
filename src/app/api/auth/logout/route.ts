@@ -1,7 +1,7 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
+import { SuccessResponse } from "@/lib/apiResponse";
 import { authServiceAxiosInstance } from "@/lib/axiosInstance";
 import { logger } from "@/lib/logger";
-import { SuccessResponse } from "@/lib/apiResponse";
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
       const errorMsg = error instanceof Error ? error.message : String(error);
       logger.warn(
         "auth-logout",
-        `Failed to logout from authentication service: ${errorMsg}`
+        `Failed to logout from authentication service: ${errorMsg}`,
       );
     }
 

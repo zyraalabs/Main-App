@@ -5,7 +5,8 @@ import { Generation } from "@/models/generation";
 
 export async function GET() {
   const user = await getCurrentUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!user)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   await connectToDatabase();
 

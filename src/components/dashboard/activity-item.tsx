@@ -15,7 +15,10 @@ function fmt(ms: number) {
 }
 
 function fmtDate(d: Date | string) {
-  return new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  return new Date(d).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
 }
 
 export function ActivityItem({
@@ -43,7 +46,10 @@ export function ActivityItem({
         <p className="text-[13px] text-foreground">
           {isBuild ? "Built " : "Updated "}
           <strong className="font-semibold">{prompt}</strong>
-          <span className="text-muted-foreground"> · {framework} · {files} files</span>
+          <span className="text-muted-foreground">
+            {" "}
+            · {framework} · {files} files
+          </span>
         </p>
         <p className="font-mono text-[11px] text-fg-subtle mt-0.5">
           {fmt(durationMs)} · {tokens.toLocaleString()} tokens

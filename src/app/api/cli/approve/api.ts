@@ -15,7 +15,7 @@ interface ApproveResponseData {
 
 export const approveCliLogin = (
   data: ApproveRequestData,
-  authToken: string
+  authToken: string,
 ) => {
   return requestHandler(() =>
     cliBackendAxiosInstance.post<ApproveResponseData>(
@@ -25,7 +25,7 @@ export const approveCliLogin = (
         headers: {
           Authorization: `Bearer ${authToken}`,
         },
-      }
-    )
+      },
+    ),
   )();
 };

@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { verifyJWT } from "@/lib/jwt";
 import { logger } from "@/lib/logger";
 

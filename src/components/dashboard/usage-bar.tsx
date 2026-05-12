@@ -22,9 +22,7 @@ export function UsageBar({ label, used, total, note }: UsageBarProps) {
           style={{ width: `${pct}%` }}
         />
       </div>
-      {note && (
-        <p className="text-[11px] text-fg-subtle mt-1.5">{note}</p>
-      )}
+      {note && <p className="text-[11px] text-fg-subtle mt-1.5">{note}</p>}
     </div>
   );
 }

@@ -1,8 +1,8 @@
-import { NextRequest } from "next/server";
 import { cookies } from "next/headers";
+import type { NextRequest } from "next/server";
+import { ErrorResponse, SuccessResponse } from "@/lib/apiResponse";
 import { getCurrentUser } from "@/lib/auth";
 import { generateConfigToken } from "@/lib/jwt";
-import { SuccessResponse, ErrorResponse } from "@/lib/apiResponse";
 import { logger } from "@/lib/logger";
 import { approveCliLogin } from "./api";
 
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
         userId: user.id,
         token: configToken,
       },
-      authToken.value
+      authToken.value,
     );
 
     if (result.code === "error") {
@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
       logger.warn("cli-approve", `Approval failed: ${result.data.error}`);
       return ErrorResponse(
         result.data.error || "Failed to approve CLI access",
-        400
+        400,
       );
     }
 

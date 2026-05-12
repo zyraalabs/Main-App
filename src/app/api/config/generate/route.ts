@@ -1,9 +1,9 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
+import { ErrorResponse, SuccessResponse } from "@/lib/apiResponse";
 import { getCurrentUser } from "@/lib/auth";
+import { connectToDatabase } from "@/lib/db";
 import { generateConfigToken } from "@/lib/jwt";
 import { logger } from "@/lib/logger";
-import { SuccessResponse, ErrorResponse } from "@/lib/apiResponse";
-import { connectToDatabase } from "@/lib/db";
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     if (!user) {
       logger.warn(
         "config-generate",
-        "Unauthorized config token generation attempt"
+        "Unauthorized config token generation attempt",
       );
       return ErrorResponse("Unauthorized", 401);
     }
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
 
     logger.info(
       "config-generate",
-      `Config token generated for user: ${user.email}`
+      `Config token generated for user: ${user.email}`,
     );
 
     return SuccessResponse({
