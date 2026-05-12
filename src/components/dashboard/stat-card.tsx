@@ -9,7 +9,7 @@ interface StatCardProps {
 
 export function StatCard({ label, value, sub, accent }: StatCardProps) {
   return (
-    <div className="bg-card border border-border rounded-[10px] p-5">
+    <div className="bg-card border border-border rounded-[10px] py-[18px] px-5">
       <p className="font-mono text-[10px] font-medium text-fg-subtle tracking-[0.07em] uppercase mb-2">
         {label}
       </p>

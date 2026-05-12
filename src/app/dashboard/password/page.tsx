@@ -1,11 +1,13 @@
 import { Button } from "@/components/ui/button";
 
 const inputClass =
-  "w-full h-9 px-3.5 rounded-lg bg-input border border-border text-[13.5px] text-foreground placeholder:text-fg-subtle focus:outline-none focus:ring-2 focus:ring-[rgba(217,114,24,0.35)] focus:border-brand transition-all";
+  "w-full px-3 py-[9px] rounded-[6px] bg-bg-input border border-border-mid text-[13px] text-foreground placeholder:text-fg-subtle focus:outline-none focus:border-brand focus:shadow-[0_0_0_3px_rgba(217,114,24,0.10)] transition-all";
+
+const labelClass = "block text-[12px] font-medium text-muted-foreground mb-1.5";
 
 export default function PasswordPage() {
   return (
-    <div className="p-7 max-w-xl">
+    <div className="py-7 px-8 max-w-xl">
       <div className="mb-6">
         <h1 className="text-[20px] font-bold tracking-[-0.02em]">Password</h1>
         <p className="text-[13px] text-muted-foreground mt-1">
@@ -14,16 +16,13 @@ export default function PasswordPage() {
       </div>
 
       <div className="bg-card border border-border rounded-[10px] p-6">
-        <h2 className="text-[14px] font-semibold mb-1">Change Password</h2>
+        <h2 className="text-[13px] font-semibold mb-0.5">Change Password</h2>
         <p className="text-[12px] text-muted-foreground mb-5">
           Must be at least 8 characters.
         </p>
         <form className="space-y-4">
-          <div className="space-y-1.5">
-            <label
-              htmlFor="current-pw"
-              className="text-[12px] font-medium text-muted-foreground"
-            >
+          <div>
+            <label htmlFor="current-pw" className={labelClass}>
               Current password
             </label>
             <input
@@ -34,11 +33,8 @@ export default function PasswordPage() {
               className={inputClass}
             />
           </div>
-          <div className="space-y-1.5">
-            <label
-              htmlFor="new-pw"
-              className="text-[12px] font-medium text-muted-foreground"
-            >
+          <div>
+            <label htmlFor="new-pw" className={labelClass}>
               New password
             </label>
             <input
@@ -49,11 +45,8 @@ export default function PasswordPage() {
               className={inputClass}
             />
           </div>
-          <div className="space-y-1.5">
-            <label
-              htmlFor="confirm-pw"
-              className="text-[12px] font-medium text-muted-foreground"
-            >
+          <div>
+            <label htmlFor="confirm-pw" className={labelClass}>
               Confirm new password
             </label>
             <input

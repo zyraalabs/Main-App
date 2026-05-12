@@ -41,7 +41,7 @@ export function CliTokenSection() {
         </Button>
       ) : (
         <div className="space-y-3">
-          <div className="flex items-center gap-3 bg-input border border-border-mid rounded-lg px-4 py-3">
+          <div className="flex items-center gap-3 bg-bg-input border border-border-mid rounded-[6px] px-4 py-3">
             <span className="text-brand font-bold font-mono text-[12px]">
               $
             </span>

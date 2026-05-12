@@ -14,7 +14,7 @@ export default async function BuildsPage() {
     .lean();
 
   return (
-    <div className="p-7 max-w-4xl">
+    <div className="py-7 px-8 max-w-4xl">
       <div className="mb-6">
         <h1 className="text-[20px] font-bold tracking-[-0.02em]">Builds</h1>
         <p className="text-[13px] text-muted-foreground mt-1">

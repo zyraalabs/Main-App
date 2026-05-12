@@ -31,7 +31,7 @@ export default async function CreditsPage() {
   );
 
   return (
-    <div className="p-7 max-w-4xl">
+    <div className="py-7 px-8 max-w-4xl">
       <div className="mb-6">
         <h1 className="text-[20px] font-bold tracking-[-0.02em]">
           Credits &amp; Usage
@@ -43,15 +43,17 @@ export default async function CreditsPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <div className="bg-card border border-border rounded-[10px] p-5">
-          <h2 className="text-[13px] font-semibold mb-3">Token Balance</h2>
-          <p className="text-[32px] font-extrabold tracking-[-0.03em] text-brand-l">
+          <p className="font-mono text-[10px] font-medium text-fg-subtle tracking-[0.07em] uppercase mb-3">
+            Token Balance
+          </p>
+          <p className="text-[32px] font-extrabold tracking-[-0.03em] text-brand-l leading-none">
             {totalTokens.toLocaleString()}
             <span className="text-[14px] font-normal text-muted-foreground">
               {" "}
               used
             </span>
           </p>
-          <p className="text-[12px] text-fg-subtle mb-4">
+          <p className="text-[12px] text-fg-subtle mt-1 mb-4">
             of {TOKEN_LIMIT.toLocaleString()} monthly limit
           </p>
           <UsageBar
@@ -63,7 +65,9 @@ export default async function CreditsPage() {
         </div>
 
         <div className="bg-card border border-border rounded-[10px] p-5">
-          <h2 className="text-[13px] font-semibold mb-4">Usage by Build</h2>
+          <p className="font-mono text-[10px] font-medium text-fg-subtle tracking-[0.07em] uppercase mb-4">
+            Usage by Build
+          </p>
           <div className="space-y-3">
             {builds.slice(0, 6).map((g) => {
               const t = (g.inputTokens ?? 0) + (g.outputTokens ?? 0);
@@ -93,13 +97,15 @@ export default async function CreditsPage() {
 
       {!user.isPremium && (
         <div className="bg-card border border-border rounded-[10px] p-5">
-          <h2 className="text-[14px] font-semibold mb-1">
+          <h2 className="text-[13px] font-semibold mb-1">
             Want unlimited tokens?
           </h2>
           <p className="text-[12px] text-muted-foreground mb-4">
             Upgrade to Pro for unlimited builds and 1M tokens per month.
           </p>
-          <Button variant="brand">Upgrade to Pro — $20/mo</Button>
+          <Button variant="brand" size="sm">
+            Upgrade to Pro — $20/mo
+          </Button>
         </div>
       )}
     </div>

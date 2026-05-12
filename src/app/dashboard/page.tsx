@@ -45,7 +45,7 @@ export default async function OverviewPage() {
   const BUILD_LIMIT = user.usage.remainingTrial + totalBuilds;
 
   return (
-    <div className="p-7 max-w-5xl">
+    <div className="py-7 px-8 max-w-5xl">
       <div className="mb-6">
         <h1 className="text-[20px] font-bold tracking-[-0.02em]">Overview</h1>
         <p className="text-[13px] text-muted-foreground mt-1">
@@ -78,13 +78,13 @@ export default async function OverviewPage() {
       </div>
 
       <div className="bg-card border border-border rounded-[10px] p-5 mb-7 space-y-4">
-        <h2 className="text-[14px] font-semibold">Monthly Usage</h2>
+        <h2 className="text-[13px] font-semibold">Monthly Usage</h2>
         <UsageBar label="Builds used" used={totalBuilds} total={BUILD_LIMIT} />
         <UsageBar label="Tokens used" used={totalTokens} total={TOKEN_LIMIT} />
       </div>
 
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="text-[14px] font-semibold">Recent Activity</h2>
+      <div className="mb-3">
+        <h2 className="text-[13px] font-semibold">Recent Activity</h2>
       </div>
       <div className="bg-card border border-border rounded-[10px] px-4">
         {recent.length === 0 ? (
