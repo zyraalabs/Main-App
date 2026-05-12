@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import { Geist, JetBrains_Mono } from "next/font/google";
 import { cookies } from "next/headers";
 import "./globals.css";
-import { cn } from "@/lib/utils";
 import { Providers } from "@/components/providers";
+import { cn } from "@/lib/utils";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-mono",
   subsets: ["latin"],
@@ -29,10 +29,11 @@ export default async function RootLayout({
     <html
       lang="en"
       className={cn(
-              jetbrainsMono.variable,
-              "h-full antialiased",
-              theme !== "light" && "dark",
-            , "font-sans", geist.variable)}
+        geist.variable,
+        jetbrainsMono.variable,
+        "h-full antialiased",
+        theme !== "light" && "dark",
+      )}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">

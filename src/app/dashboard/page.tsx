@@ -1,160 +1,110 @@
-"use client";
+import { ActivityItem } from "@/components/dashboard/activity-item";
+import { StatCard } from "@/components/dashboard/stat-card";
+import { UsageBar } from "@/components/dashboard/usage-bar";
+import { getCurrentUser } from "@/lib/auth";
+import { connectToDatabase } from "@/lib/db";
+import { Generation } from "@/models/generation";
 
-import { useEffect, useState } from "react";
-import { getUserInfoFromCookie } from "@/lib/auth-client";
-import type { UserInfo } from "@/lib/auth";
+async function getOverviewData(userId: string) {
+  await connectToDatabase();
 
-export default function Dashboard() {
-  const [user, setUser] = useState<UserInfo | null>(null);
-  const [configToken, setConfigToken] = useState<string>("");
-  const [command, setCommand] = useState<string>("");
-  const [loading, setLoading] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [agg] = await Generation.aggregate([
+    { $match: { userId } },
+    {
+      $group: {
+        _id: null,
+        totalBuilds: { $sum: 1 },
+        totalFiles: { $sum: "$filesGenerated" },
+        totalTokens: { $sum: { $add: ["$inputTokens", "$outputTokens"] } },
+        totalDurationMs: { $sum: "$durationMs" },
+      },
+    },
+  ]);
 
-  useEffect(() => {
-    const userInfo = getUserInfoFromCookie();
-    setUser(userInfo);
-  }, []);
+  const recent = await Generation.find({ userId })
+    .sort({ createdAt: -1 })
+    .limit(5)
+    .lean();
 
-  const generateConfigToken = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch("/api/config/generate", {
-        method: "POST",
-      });
+  return { agg, recent };
+}
 
-      if (response.ok) {
-        const data = await response.json();
-        setConfigToken(data.data.token);
-        setCommand(data.data.command);
-      } else {
-        alert("Failed to generate config token");
-      }
-    } catch (error) {
-      console.error("Error generating config token:", error);
-      alert("Failed to generate config token");
-    } finally {
-      setLoading(false);
-    }
-  };
+export default async function OverviewPage() {
+  const user = await getCurrentUser();
+  if (!user) return null;
 
-  const copyToClipboard = async () => {
-    try {
-      await navigator.clipboard.writeText(command);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
-      console.error("Failed to copy:", error);
-      alert("Failed to copy to clipboard");
-    }
-  };
-
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Access Denied</h1>
-          <p className="text-gray-600">Please authenticate first</p>
-          <a href="/auth-test" className="text-blue-600 hover:underline">
-            Go to Auth Test
-          </a>
-        </div>
-      </div>
-    );
-  }
+  const { agg, recent } = await getOverviewData(user.id);
+  const totalBuilds = agg?.totalBuilds ?? 0;
+  const totalFiles = agg?.totalFiles ?? 0;
+  const totalTokens = agg?.totalTokens ?? 0;
+  const avgSec =
+    agg && totalBuilds > 0
+      ? Math.round(agg.totalDurationMs / totalBuilds / 100) / 10
+      : 0;
+  const TOKEN_LIMIT = 100_000;
+  const BUILD_LIMIT = user.usage.remainingTrial + totalBuilds;
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
-          <p className="text-gray-600">Welcome back, {user.name}</p>
-        </div>
+    <div className="p-7 max-w-5xl">
+      <div className="mb-6">
+        <h1 className="text-[20px] font-bold tracking-[-0.02em]">Overview</h1>
+        <p className="text-[13px] text-muted-foreground mt-1">
+          Welcome back, {user.name.split(" ")[0]}.
+        </p>
+      </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
-            CLI Configuration
-          </h2>
-          <p className="text-gray-600 mb-6">
-            Generate your personal configuration token for the Zyra CLI tool.
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-7">
+        <StatCard
+          label="Total Builds"
+          value={totalBuilds}
+          sub={`of ${BUILD_LIMIT} this month`}
+          accent
+        />
+        <StatCard
+          label="Tokens Used"
+          value={`${(totalTokens / 1000).toFixed(1)}k`}
+          sub={`of ${TOKEN_LIMIT / 1000}k limit`}
+        />
+        <StatCard
+          label="Files Generated"
+          value={totalFiles}
+          sub="across all builds"
+        />
+        <StatCard
+          label="Avg Build Time"
+          value={`${avgSec}s`}
+          sub="per generation"
+        />
+      </div>
+
+      <div className="bg-card border border-border rounded-[10px] p-5 mb-7 space-y-4">
+        <h2 className="text-[14px] font-semibold">Monthly Usage</h2>
+        <UsageBar label="Builds used" used={totalBuilds} total={BUILD_LIMIT} />
+        <UsageBar label="Tokens used" used={totalTokens} total={TOKEN_LIMIT} />
+      </div>
+
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-[14px] font-semibold">Recent Activity</h2>
+      </div>
+      <div className="bg-card border border-border rounded-[10px] px-4">
+        {recent.length === 0 ? (
+          <p className="py-8 text-center text-[13px] text-muted-foreground">
+            No builds yet.
           </p>
-
-          <button
-            onClick={generateConfigToken}
-            disabled={loading}
-            className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed mb-6"
-          >
-            {loading ? "Generating..." : "Generate Config Token"}
-          </button>
-
-          {command && (
-            <div className="bg-gray-50 border rounded-lg p-4">
-              <h3 className="text-lg font-medium text-gray-900 mb-3">
-                Your CLI Command:
-              </h3>
-
-              <div className="bg-black text-green-400 p-4 rounded-md font-mono text-sm mb-4">
-                <code>{command}</code>
-              </div>
-
-              <div className="flex gap-3">
-                <button
-                  onClick={copyToClipboard}
-                  className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
-                >
-                  {copied ? "Copied!" : "Copy Command"}
-                </button>
-
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(configToken);
-                    setCopied(true);
-                    setTimeout(() => setCopied(false), 2000);
-                  }}
-                  className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700"
-                >
-                  Copy Token Only
-                </button>
-              </div>
-
-              <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
-                <p className="text-sm text-blue-800">
-                  <strong>Instructions:</strong> Copy the command above and run
-                  it in your terminal to configure the Zyra CLI with your
-                  credentials.
-                </p>
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="bg-white rounded-lg shadow-md p-6 mt-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
-            Account Information
-          </h2>
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <span className="font-medium text-gray-700">Email:</span>
-              <span className="ml-2 text-gray-900">{user.email}</span>
-            </div>
-            <div>
-              <span className="font-medium text-gray-700">Plan:</span>
-              <span className="ml-2 text-gray-900">{user.plan}</span>
-            </div>
-            <div>
-              <span className="font-medium text-gray-700">Premium:</span>
-              <span className="ml-2 text-gray-900">
-                {user.isPremium ? "Yes" : "No"}
-              </span>
-            </div>
-            <div>
-              <span className="font-medium text-gray-700">Total Builds:</span>
-              <span className="ml-2 text-gray-900">
-                {user.usage.totalBuilds}
-              </span>
-            </div>
-          </div>
-        </div>
+        ) : (
+          recent.map((g) => (
+            <ActivityItem
+              key={String(g._id)}
+              type="build"
+              prompt={g.prompt}
+              framework={g.framework}
+              files={g.filesGenerated}
+              tokens={(g.inputTokens ?? 0) + (g.outputTokens ?? 0)}
+              durationMs={g.durationMs}
+              createdAt={g.createdAt}
+            />
+          ))
+        )}
       </div>
     </div>
   );
