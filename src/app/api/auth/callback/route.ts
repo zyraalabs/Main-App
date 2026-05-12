@@ -1,53 +1,44 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { verifyJWT } from "@/lib/jwt";
 import { logger } from "@/lib/logger";
-import { SuccessResponse, ErrorResponse } from "@/lib/apiResponse";
-import { connectToDatabase } from "@/lib/db";
 
 export async function GET(request: NextRequest) {
   try {
-    await connectToDatabase();
     const { searchParams } = new URL(request.url);
     const token = searchParams.get("token");
 
     if (!token) {
-      logger.warn("auth-callback", "No token provided in callback request");
-      return ErrorResponse("No authentication token provided", 400);
+      logger.warn("auth-callback", "No token provided");
+      return NextResponse.redirect(
+        new URL(
+          `${process.env.AUTH_SERVICE_URL ?? "http://localhost:3000"}/login`,
+        ),
+      );
     }
 
     const payload = verifyJWT(token);
     if (!payload) {
-      logger.error("auth-callback", "Invalid or expired JWT token");
-      return ErrorResponse("Invalid or expired authentication token", 401);
+      logger.error("auth-callback", "Invalid or expired JWT");
+      return NextResponse.redirect(
+        new URL(
+          `${process.env.AUTH_SERVICE_URL ?? "http://localhost:3000"}/login`,
+        ),
+      );
     }
 
-    logger.info(
-      "auth-callback",
-      `JWT token verified successfully for user: ${payload.email}`
-    );
+    const name = encodeURIComponent(payload.name ?? "");
+    const redirectUrl = new URL(`/auth/redirect?name=${name}`, request.url);
+    const response = NextResponse.redirect(redirectUrl);
 
-    const response = SuccessResponse({
-      message: "Authentication successful",
-      user: {
-        id: payload.sub,
-        email: payload.email,
-        name: payload.name,
-        emailVerified: payload.emailVerified,
-        isPremium: payload.isPremium,
-        plan: payload.plan,
-        trialUsed: payload.trialUsed,
-        usage: payload.usage,
-      },
-    });
-
-    response.cookies.set("auth-token", token, {
+    const cookieOpts = {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      sameSite: "lax" as const,
       maxAge: 30 * 24 * 60 * 60,
       path: "/",
-    });
+    };
 
+    response.cookies.set("auth-token", token, cookieOpts);
     response.cookies.set(
       "user-info",
       JSON.stringify({
@@ -60,23 +51,17 @@ export async function GET(request: NextRequest) {
         trialUsed: payload.trialUsed,
         usage: payload.usage,
       }),
-      {
-        httpOnly: false,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 30 * 24 * 60 * 60,
-        path: "/",
-      }
+      { ...cookieOpts, httpOnly: false },
     );
 
-    logger.info(
-      "auth-callback",
-      `Authentication cookies set successfully for user: ${payload.email}`
-    );
-
+    logger.info("auth-callback", `Auth successful: ${payload.email}`);
     return response;
   } catch (error) {
-    logger.error("auth-callback", "Authentication callback failed", error);
-    return ErrorResponse("Authentication callback failed", 500);
+    logger.error("auth-callback", "Callback failed", error);
+    return NextResponse.redirect(
+      new URL(
+        `${process.env.AUTH_SERVICE_URL ?? "http://localhost:3000"}/login`,
+      ),
+    );
   }
 }
