@@ -3,66 +3,60 @@
 import { Copy } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useCliToken } from "@/hooks/dashboard/useCliToken";
 
-export function CliTokenSection() {
-  const [command, setCommand] = useState("");
-  const [loading, setLoading] = useState(false);
+function TokenBlock() {
+  const { command, loading, error } = useCliToken();
   const [copied, setCopied] = useState(false);
 
-  async function generate() {
-    setLoading(true);
-    try {
-      const res = await fetch("/api/config/generate", { method: "POST" });
-      if (res.ok) {
-        const data = await res.json();
-        setCommand(data.data.command);
-      }
-    } finally {
-      setLoading(false);
-    }
-  }
-
   async function copy() {
+    if (!command) return;
     await navigator.clipboard.writeText(command);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }
 
   return (
+    <div className="rounded-[8px] border border-border-mid bg-bg-input overflow-hidden">
+      <div className="flex items-center justify-between px-3 py-2 border-b border-border-mid">
+        <span className="font-mono text-[10px] text-fg-subtle uppercase tracking-[0.08em]">
+          terminal
+        </span>
+        {command && (
+          <Button variant="outline" size="xs" onClick={copy} className="h-5 px-2 text-[10px]">
+            <Copy className="size-2.5" />
+            {copied ? "Copied!" : "Copy"}
+          </Button>
+        )}
+      </div>
+      <div className="overflow-x-auto px-3 py-2.5">
+        {loading ? (
+          <p className="font-mono text-[12px] text-fg-subtle animate-pulse">
+            Generating…
+          </p>
+        ) : error ? (
+          <p className="font-mono text-[12px] text-destructive">{error}</p>
+        ) : (
+          <pre className="font-mono text-[12px] text-brand-l whitespace-pre select-all leading-relaxed">
+            <span className="text-fg-subtle select-none">$ </span>{command}
+          </pre>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export function CliTokenSection() {
+  return (
     <div className="bg-card border border-border rounded-[10px] p-6">
-      <h2 className="text-[14px] font-semibold mb-1">Generate Config Token</h2>
+      <h2 className="text-[14px] font-semibold mb-1">Your Auth Command</h2>
       <p className="text-[12px] text-muted-foreground mb-5">
         Run this command in your terminal to link the CLI to your account.
       </p>
-
-      {!command ? (
-        <Button variant="brand" size="sm" onClick={generate} disabled={loading}>
-          {loading ? "Generating…" : "Generate token"}
-        </Button>
-      ) : (
-        <div className="space-y-3">
-          <div className="flex items-center gap-3 bg-bg-input border border-border-mid rounded-[6px] px-4 py-3">
-            <span className="text-brand font-bold font-mono text-[12px]">
-              $
-            </span>
-            <span className="font-mono text-[12px] text-brand-l flex-1 truncate">
-              {command}
-            </span>
-            <Button
-              variant="outline"
-              size="xs"
-              onClick={copy}
-              className="shrink-0"
-            >
-              <Copy className="size-3" />
-              {copied ? "Copied!" : "Copy"}
-            </Button>
-          </div>
-          <p className="text-[12px] text-fg-subtle">
-            Token expires in 30 minutes. Generate a new one if needed.
-          </p>
-        </div>
-      )}
+      <TokenBlock />
+      <p className="text-[11px] text-fg-subtle mt-2.5">
+        Expires in 30 min · select text above to copy manually
+      </p>
     </div>
   );
 }
