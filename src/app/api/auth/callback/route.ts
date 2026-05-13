@@ -26,8 +26,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const name = encodeURIComponent(payload.name ?? "");
-    const redirectUrl = new URL(`/auth/redirect?name=${name}`, request.url);
+    const redirectUrl = new URL("/dashboard", request.url);
     const response = NextResponse.redirect(redirectUrl);
 
     const cookieOpts = {
