@@ -1,39 +1,47 @@
-import { NextResponse } from "next/server";
+import { ErrorResponse, SuccessResponse } from "@/lib/apiResponse";
 import { getCurrentUser } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/db";
+import { logger } from "@/lib/logger";
 import { Generation } from "@/models/generation";
 
 export async function GET() {
-  const user = await getCurrentUser();
-  if (!user)
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      logger.warn("dashboard-stats", "Unauthorized access attempt");
+      return ErrorResponse("Unauthorized", 401);
+    }
 
-  await connectToDatabase();
+    await connectToDatabase();
 
-  const [agg] = await Generation.aggregate([
-    { $match: { userId: user.id } },
-    {
-      $group: {
-        _id: null,
-        totalBuilds: { $sum: 1 },
-        totalFiles: { $sum: "$filesGenerated" },
-        totalTokens: { $sum: { $add: ["$inputTokens", "$outputTokens"] } },
-        totalDurationMs: { $sum: "$durationMs" },
+    const [agg] = await Generation.aggregate([
+      { $match: { userId: user.id } },
+      {
+        $group: {
+          _id: null,
+          totalBuilds: { $sum: 1 },
+          totalFiles: { $sum: "$filesGenerated" },
+          totalTokens: { $sum: { $add: ["$inputTokens", "$outputTokens"] } },
+          totalDurationMs: { $sum: "$durationMs" },
+        },
       },
-    },
-  ]);
+    ]);
 
-  const stats = {
-    totalBuilds: agg?.totalBuilds ?? 0,
-    totalFiles: agg?.totalFiles ?? 0,
-    totalTokens: agg?.totalTokens ?? 0,
-    avgDurationSec: agg
-      ? Math.round(agg.totalDurationMs / agg.totalBuilds / 100) / 10
-      : 0,
-    remainingTrial: user.usage.remainingTrial,
-    plan: user.plan,
-    isPremium: user.isPremium,
-  };
+    logger.info("dashboard-stats", `Stats fetched for user: ${user.email}`);
 
-  return NextResponse.json(stats);
+    return SuccessResponse({
+      totalBuilds: agg?.totalBuilds ?? 0,
+      totalFiles: agg?.totalFiles ?? 0,
+      totalTokens: agg?.totalTokens ?? 0,
+      avgDurationSec: agg
+        ? Math.round(agg.totalDurationMs / agg.totalBuilds / 100) / 10
+        : 0,
+      remainingTrial: user.usage.remainingTrial,
+      plan: user.plan,
+      isPremium: user.isPremium,
+    });
+  } catch (error) {
+    logger.error("dashboard-stats", "Failed to fetch stats", error);
+    return ErrorResponse("Failed to fetch stats", 500);
+  }
 }
