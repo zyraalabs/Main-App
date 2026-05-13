@@ -21,6 +21,11 @@ function fmtDate(d: Date | string) {
   });
 }
 
+function truncate(text: string, max = 80) {
+  if (!text) return "";
+  return text.length > max ? text.slice(0, max).trimEnd() + "…" : text;
+}
+
 export function ActivityItem({
   type,
   prompt,
@@ -43,16 +48,16 @@ export function ActivityItem({
         {isBuild ? "✓" : "›"}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-[13px] text-foreground">
+        <p className="text-[13px] text-foreground truncate">
           {isBuild ? "Built " : "Updated "}
-          <strong className="font-semibold">{prompt}</strong>
+          <strong className="font-semibold">{truncate(prompt ?? "")}</strong>
           <span className="text-muted-foreground">
             {" "}
-            · {framework} · {files} files
+            · {framework ?? "—"} · {files ?? 0} files
           </span>
         </p>
         <p className="font-mono text-[11px] text-fg-subtle mt-0.5">
-          {fmt(durationMs)} · {tokens.toLocaleString()} tokens
+          {fmt(durationMs ?? 0)} · {(tokens ?? 0).toLocaleString()} tokens
         </p>
       </div>
       <span className="font-mono text-[11px] text-fg-subtle whitespace-nowrap">
