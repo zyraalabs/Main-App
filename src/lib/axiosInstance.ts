@@ -1,20 +1,17 @@
 import axios from "axios";
+import { APP_URL, AUTH_SERVICE_URL } from "./env";
 
-const axiosInstance = axios.create({
-  baseURL:
-    process.env.APP_URL ||
-    process.env.NEXT_PUBLIC_APP_URL ||
-    "http://localhost:3001",
-  timeout: 10000,
-});
+const CLI_BACKEND_URL = process.env.CLI_BACKEND_URL ?? "http://localhost:4000";
+
+const axiosInstance = axios.create({ baseURL: APP_URL, timeout: 10000 });
 
 const authServiceAxiosInstance = axios.create({
-  baseURL: process.env.AUTH_SERVICE_URL || "http://localhost:3000",
+  baseURL: AUTH_SERVICE_URL,
   timeout: 10000,
 });
 
 const cliBackendAxiosInstance = axios.create({
-  baseURL: process.env.CLI_BACKEND_URL || "http://localhost:4000",
+  baseURL: CLI_BACKEND_URL,
   timeout: 10000,
 });
 

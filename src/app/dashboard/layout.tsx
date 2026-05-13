@@ -1,4 +1,3 @@
-import { redirect } from "next/navigation";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { TopNav } from "@/components/dashboard/top-nav";
 import { getCurrentUser } from "@/lib/auth";
@@ -9,10 +8,7 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   const user = await getCurrentUser();
-  if (!user)
-    redirect(
-      `${process.env.AUTH_SERVICE_URL ?? "http://localhost:3000"}/login`,
-    );
+  if (!user) return null;
 
   return (
     <div className="flex flex-col h-screen overflow-hidden">

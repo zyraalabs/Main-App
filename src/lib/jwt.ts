@@ -1,8 +1,9 @@
 import jwt from "jsonwebtoken";
+import { APP_URL, JWT_SECRET } from "./env";
 import { logger } from "./logger";
 
 export interface JWTPayload {
-  sub: string; // user id
+  sub: string;
   email: string;
   name: string;
   emailVerified: boolean;
@@ -24,10 +25,7 @@ export function generateJWT(userData: {
   isPremium: boolean;
   plan: string;
   trialUsed: boolean;
-  usage: {
-    totalBuilds: number;
-    remainingTrial: number;
-  };
+  usage: { totalBuilds: number; remainingTrial: number };
 }): string {
   const payload: JWTPayload = {
     sub: userData.id,
@@ -38,25 +36,14 @@ export function generateJWT(userData: {
     plan: userData.plan,
     trialUsed: userData.trialUsed,
     usage: userData.usage,
-    exp: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60, // 30 days
+    exp: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60,
   };
-
-  const secret = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET;
-  if (!secret) {
-    throw new Error("JWT_SECRET or NEXTAUTH_SECRET must be defined");
-  }
-
-  return jwt.sign(payload, secret);
+  return jwt.sign(payload, JWT_SECRET);
 }
 
 export function verifyJWT(token: string): JWTPayload | null {
   try {
-    const secret = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET;
-    if (!secret) {
-      throw new Error("JWT_SECRET or NEXTAUTH_SECRET must be defined");
-    }
-
-    return jwt.verify(token, secret) as JWTPayload;
+    return jwt.verify(token, JWT_SECRET) as JWTPayload;
   } catch (error) {
     logger.error("verifyJWT", "JWT verification failed", error);
     return null;
@@ -78,15 +65,9 @@ export function generateConfigToken(userData: {
   const payload: ConfigPayload = {
     userId: userData.id,
     email: userData.email,
-    apiEndpoint: process.env.APP_URL || "http://localhost:3001",
+    apiEndpoint: APP_URL,
     permissions: ["build", "deploy", "logs"],
     exp: Math.floor(Date.now() / 1000) + 365 * 24 * 60 * 60,
   };
-
-  const secret = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET;
-  if (!secret) {
-    throw new Error("JWT_SECRET or NEXTAUTH_SECRET must be defined");
-  }
-
-  return jwt.sign(payload, secret);
+  return jwt.sign(payload, JWT_SECRET);
 }

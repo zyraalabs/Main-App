@@ -1,49 +1,41 @@
+import { jwtVerify } from "jose";
 import { type NextRequest, NextResponse } from "next/server";
-import { verifyJWT } from "./lib/jwt";
 
-const protectedRoutes = ["/dashboard", "/profile", "/settings"];
-
-const publicRoutes = [
-  "/",
-  "/auth-test",
+const PUBLIC_PREFIXES = [
   "/api/auth/callback",
   "/api/auth/logout",
+  "/auth/",
   "/cli-auth",
+  "/_next/",
+  "/favicon.ico",
 ];
 
-export function proxy(request: NextRequest) {
+const HOME_URL = process.env.HOME_URL ?? "http://localhost:3000";
+const JWT_SECRET = process.env.JWT_SECRET ?? process.env.NEXTAUTH_SECRET ?? "";
+
+async function isValidToken(token: string): Promise<boolean> {
+  try {
+    await jwtVerify(token, new TextEncoder().encode(JWT_SECRET));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (pathname.startsWith("/api/") && !pathname.startsWith("/api/protected/"))
-    return NextResponse.next();
-
-  if (publicRoutes.some((route) => pathname.startsWith(route))) {
+  if (PUBLIC_PREFIXES.some((p) => pathname.startsWith(p))) {
     return NextResponse.next();
   }
 
-  const isProtectedRoute = protectedRoutes.some((route) =>
-    pathname.startsWith(route),
-  );
+  const token = request.cookies.get("auth-token")?.value;
 
-  if (isProtectedRoute) {
-    const authToken = request.cookies.get("auth-token");
-
-    if (!authToken) {
-      const authUrl = `${
-        process.env.AUTH_SERVICE_URL || "http://localhost:3000"
-      }/login`;
-      return NextResponse.redirect(new URL(authUrl));
-    }
-
-    const payload = verifyJWT(authToken.value);
-    if (!payload) {
-      const authUrl = `${
-        process.env.AUTH_SERVICE_URL || "http://localhost:3000"
-      }/login`;
-      return NextResponse.redirect(new URL(authUrl));
-    }
-
-    return NextResponse.next();
+  if (!token || !(await isValidToken(token))) {
+    const response = NextResponse.redirect(HOME_URL);
+    response.cookies.set("auth-token", "", { expires: new Date(0), path: "/" });
+    response.cookies.set("user-info", "", { expires: new Date(0), path: "/" });
+    return response;
   }
 
   return NextResponse.next();
