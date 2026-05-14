@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -52,12 +51,12 @@ function Dropdown({ name, email, onClose }: { name: string; email: string; onClo
         </div>
         <div className="border-t border-border" />
         <div className="p-1.5">
-          <Link
+          <a
             href="/api/auth/logout"
             className="flex w-full items-center rounded-lg px-3 py-2 text-[13px] text-muted-foreground hover:bg-surface hover:text-foreground transition-colors"
           >
             Sign out
-          </Link>
+          </a>
         </div>
       </div>
     </>
