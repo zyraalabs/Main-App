@@ -1,9 +1,18 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { SuccessResponse } from "@/lib/apiResponse";
-import { AUTH_SERVICE_URL, COOKIE_DOMAIN, HOME_URL, IS_PRODUCTION } from "@/lib/env";
+import { COOKIE_DOMAIN, HOME_URL, IS_PRODUCTION } from "@/lib/env";
 import { logger } from "@/lib/logger";
 
-function clearAuthCookies(response: NextResponse, request: NextRequest) {
+const ALL_COOKIES = [
+  { name: "auth-token", httpOnly: true },
+  { name: "user-info", httpOnly: false },
+  { name: "next-auth.session-token", httpOnly: true },
+  { name: "__Secure-next-auth.session-token", httpOnly: true },
+  { name: "next-auth.callback-url", httpOnly: false },
+  { name: "next-auth.csrf-token", httpOnly: false },
+];
+
+function clearAllCookies(response: NextResponse) {
   const base = {
     secure: IS_PRODUCTION,
     sameSite: "lax" as const,
@@ -11,31 +20,22 @@ function clearAuthCookies(response: NextResponse, request: NextRequest) {
     path: "/",
     ...(COOKIE_DOMAIN ? { domain: COOKIE_DOMAIN } : {}),
   };
-
-  const incoming = request.cookies.getAll();
-  console.log("[logout] COOKIE_DOMAIN =", COOKIE_DOMAIN || "(none)");
-  console.log("[logout] IS_PRODUCTION =", IS_PRODUCTION);
-  console.log("[logout] Incoming cookies:", incoming.map((c) => c.name));
-  console.log("[logout] auth-token present:", request.cookies.has("auth-token"));
-  console.log("[logout] Clearing with base opts:", JSON.stringify(base));
-
-  response.cookies.set("auth-token", "", { ...base, httpOnly: true });
-  response.cookies.set("user-info", "", { ...base, httpOnly: false });
+  for (const { name, httpOnly } of ALL_COOKIES) {
+    response.cookies.set(name, "", { ...base, httpOnly });
+  }
 }
 
-export async function GET(request: NextRequest) {
-  const sessionClearUrl = `${AUTH_SERVICE_URL}/api/auth/session-clear?callbackUrl=${encodeURIComponent(HOME_URL)}`;
-  console.log("[logout] GET hit → redirecting to:", sessionClearUrl);
-  const response = NextResponse.redirect(sessionClearUrl);
-  clearAuthCookies(response, request);
-  logger.info("auth-logout", "Cookies cleared, chaining to session-clear");
+export async function GET(_request: NextRequest) {
+  logger.info("auth-logout", "Clearing all cookies and redirecting to home");
+  const response = NextResponse.redirect(HOME_URL);
+  clearAllCookies(response);
   return response;
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const response = SuccessResponse({ message: "Logout successful" });
-    clearAuthCookies(response, request);
+    clearAllCookies(response);
     logger.info("auth-logout", "Cookies cleared");
     return response;
   } catch (error) {
