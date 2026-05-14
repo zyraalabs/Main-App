@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Geist, JetBrains_Mono } from "next/font/google";
-import { cookies } from "next/headers";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { cn } from "@/lib/utils";
@@ -17,23 +16,15 @@ export const metadata: Metadata = {
   description: "Build full-stack apps from a single prompt.",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const cookieStore = await cookies();
-  const theme = cookieStore.get("zyraa-theme")?.value ?? "dark";
-
   return (
     <html
       lang="en"
-      className={cn(
-        geist.variable,
-        jetbrainsMono.variable,
-        "h-full antialiased",
-        theme !== "light" && "dark",
-      )}
+      className={cn(geist.variable, jetbrainsMono.variable, "dark h-full antialiased")}
       suppressHydrationWarning
     >
       <head>
