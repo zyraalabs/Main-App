@@ -14,7 +14,7 @@ export function InvalidRequestCard() {
       <p className="text-[13px] text-muted-foreground mb-6 leading-relaxed">
         This CLI authentication link is invalid or has already expired.
         <br />
-        Run <code className="font-mono text-brand-l">zyra login</code> again to
+        Run <code className="font-mono text-brand-l">zyraa login</code> again to
         get a new link.
       </p>
       <Button asChild className="w-full">
