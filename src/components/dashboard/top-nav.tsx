@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { DashboardLogo } from "@/components/dashboard/dashboard-logo";
+import { ThemeToggle } from "@/components/dashboard/theme-toggle";
 import { UserMenu } from "@/components/dashboard/user-menu";
 import type { UserInfo } from "@/lib/auth";
 
@@ -13,7 +14,7 @@ export function TopNav({ user }: TopNavProps) {
       <DashboardLogo />
 
       <div className="flex items-center gap-3">
-        <span className="font-mono text-[10px] font-semibold px-2 py-0.5 rounded border border-[rgba(217,114,24,0.25)] bg-[var(--brand-dim)] text-brand-l">
+        <span className="font-mono text-[10px] font-semibold px-2 py-0.5 rounded border border-[rgba(217,114,24,0.25)] bg-[--brand-dim] text-brand-l">
           {user.plan}
         </span>
         {!user.isPremium && (
@@ -21,6 +22,7 @@ export function TopNav({ user }: TopNavProps) {
             Upgrade to Pro
           </Button>
         )}
+        <ThemeToggle />
         <UserMenu name={user.name} email={user.email} />
       </div>
     </header>
