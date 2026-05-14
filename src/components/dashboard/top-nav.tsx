@@ -23,7 +23,7 @@ export function TopNav({ user }: TopNavProps) {
           </Button>
         )}
         <ThemeToggle />
-        <UserMenu name={user.name} email={user.email} />
+        <UserMenu name={user.name} email={user.email} image={user.image} />
       </div>
     </header>
   );

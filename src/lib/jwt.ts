@@ -6,6 +6,7 @@ export interface JWTPayload {
   sub: string;
   email: string;
   name: string;
+  image?: string;
   emailVerified: boolean;
   isPremium: boolean;
   plan: string;

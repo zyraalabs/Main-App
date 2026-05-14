@@ -6,6 +6,7 @@ export interface UserInfo {
   id: string;
   email: string;
   name: string;
+  image?: string;
   emailVerified: boolean;
   isPremium: boolean;
   plan: string;
@@ -36,6 +37,7 @@ export async function getCurrentUser(): Promise<UserInfo | null> {
       id: payload.sub,
       email: payload.email,
       name: payload.name,
+      image: payload.image,
       emailVerified: payload.emailVerified,
       isPremium: payload.isPremium,
       plan: payload.plan,

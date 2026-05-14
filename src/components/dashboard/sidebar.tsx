@@ -1,6 +1,6 @@
 import type { UserInfo } from "@/lib/auth";
 import { NavItem } from "./nav-item";
-import { UserCard } from "./user-card";
+import { UserMenu } from "./user-menu";
 
 const MAIN_NAV = [
   { href: "/dashboard", icon: "▸", label: "Overview" },
@@ -41,7 +41,7 @@ export function Sidebar({ user }: SidebarProps) {
       </div>
 
       <div className="mt-auto p-[10px] border-t border-border">
-        <UserCard user={user} />
+        <UserMenu name={user.name} email={user.email} image={user.image} variant="sidebar" />
       </div>
     </aside>
   );
