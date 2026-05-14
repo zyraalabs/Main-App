@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { verifyJWT } from "@/lib/jwt";
 import { logger } from "@/lib/logger";
-import { AUTH_SERVICE_URL, IS_PRODUCTION } from "@/lib/env";
+import { AUTH_SERVICE_URL, COOKIE_DOMAIN, IS_PRODUCTION } from "@/lib/env";
 
 export async function GET(request: NextRequest) {
   try {
@@ -28,6 +28,7 @@ export async function GET(request: NextRequest) {
       sameSite: "lax" as const,
       maxAge: 30 * 24 * 60 * 60,
       path: "/",
+      ...(COOKIE_DOMAIN ? { domain: COOKIE_DOMAIN } : {}),
     };
 
     response.cookies.set("auth-token", token, cookieOpts);
