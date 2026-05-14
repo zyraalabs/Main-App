@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { verifyJWT } from "@/lib/jwt";
 import { logger } from "@/lib/logger";
+import { AUTH_SERVICE_URL, IS_PRODUCTION } from "@/lib/env";
 
 export async function GET(request: NextRequest) {
   try {
@@ -9,21 +10,13 @@ export async function GET(request: NextRequest) {
 
     if (!token) {
       logger.warn("auth-callback", "No token provided");
-      return NextResponse.redirect(
-        new URL(
-          `${process.env.AUTH_SERVICE_URL ?? "http://localhost:3000"}/login`,
-        ),
-      );
+      return NextResponse.redirect(new URL(`${AUTH_SERVICE_URL}/login`));
     }
 
     const payload = verifyJWT(token);
     if (!payload) {
       logger.error("auth-callback", "Invalid or expired JWT");
-      return NextResponse.redirect(
-        new URL(
-          `${process.env.AUTH_SERVICE_URL ?? "http://localhost:3000"}/login`,
-        ),
-      );
+      return NextResponse.redirect(new URL(`${AUTH_SERVICE_URL}/login`));
     }
 
     const redirectUrl = new URL("/dashboard", request.url);
@@ -31,7 +24,7 @@ export async function GET(request: NextRequest) {
 
     const cookieOpts = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: IS_PRODUCTION,
       sameSite: "lax" as const,
       maxAge: 30 * 24 * 60 * 60,
       path: "/",
@@ -57,10 +50,6 @@ export async function GET(request: NextRequest) {
     return response;
   } catch (error) {
     logger.error("auth-callback", "Callback failed", error);
-    return NextResponse.redirect(
-      new URL(
-        `${process.env.AUTH_SERVICE_URL ?? "http://localhost:3000"}/login`,
-      ),
-    );
+    return NextResponse.redirect(new URL(`${AUTH_SERVICE_URL}/login`));
   }
 }

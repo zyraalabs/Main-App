@@ -1,11 +1,11 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { SuccessResponse } from "@/lib/apiResponse";
-import { AUTH_SERVICE_URL, HOME_URL } from "@/lib/env";
+import { AUTH_SERVICE_URL, HOME_URL, IS_PRODUCTION } from "@/lib/env";
 import { logger } from "@/lib/logger";
 
 function clearAuthCookies(response: NextResponse) {
   const base = {
-    secure: process.env.NODE_ENV === "production",
+    secure: IS_PRODUCTION,
     sameSite: "lax" as const,
     expires: new Date(0),
     path: "/",

@@ -1,7 +1,5 @@
 import axios from "axios";
-import { AUTH_SERVICE_URL } from "./env";
-
-const CLI_BACKEND_URL = process.env.CLI_BACKEND_URL ?? "http://localhost:4000";
+import { AUTH_SERVICE_URL, CLI_BACKEND_URL } from "./env";
 
 export const axiosInstance = axios.create({
   baseURL: "/api",

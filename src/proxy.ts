@@ -1,5 +1,6 @@
 import { jwtVerify } from "jose";
 import { type NextRequest, NextResponse } from "next/server";
+import { HOME_URL, JWT_SECRET } from "@/lib/env";
 
 const PUBLIC_PREFIXES = [
   "/api/auth/callback",
@@ -9,9 +10,6 @@ const PUBLIC_PREFIXES = [
   "/_next/",
   "/favicon.ico",
 ];
-
-const HOME_URL = process.env.HOME_URL ?? "http://localhost:3000";
-const JWT_SECRET = process.env.JWT_SECRET ?? process.env.NEXTAUTH_SECRET ?? "";
 
 async function isValidToken(token: string): Promise<boolean> {
   try {
