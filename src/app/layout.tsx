@@ -12,7 +12,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Dashboard — Zyraa",
+  title: "Dashboard | Zyraa",
   description: "Build full-stack apps from a single prompt.",
 };
 
@@ -24,7 +24,11 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={cn(geist.variable, jetbrainsMono.variable, "dark h-full antialiased")}
+      className={cn(
+        geist.variable,
+        jetbrainsMono.variable,
+        "dark h-full antialiased",
+      )}
       suppressHydrationWarning
     >
       <head>
