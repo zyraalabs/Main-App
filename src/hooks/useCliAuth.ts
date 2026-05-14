@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { getUserInfoFromCookie } from "@/lib/auth-client";
 import { axiosInstance } from "@/lib/axiosInstance";
 import { requestHandler } from "@/lib/requesthandler";
-import { PUBLIC_AUTH_SERVICE_URL } from "@/lib/env";
+import { AUTH_SERVICE_URL } from "@/lib/env";
 
 interface ApprovePayload {
   requestId: string;
@@ -40,7 +40,7 @@ export function useCliAuth() {
     const userInfo = getUserInfoFromCookie();
     if (!userInfo) {
       const currentUrl = window.location.href;
-      window.location.href = `${PUBLIC_AUTH_SERVICE_URL}/login?callbackUrl=${encodeURIComponent(currentUrl)}`;
+      window.location.href = `${AUTH_SERVICE_URL}/login?callbackUrl=${encodeURIComponent(currentUrl)}`;
       return;
     }
     setUser({ name: userInfo.name, email: userInfo.email, plan: userInfo.plan ?? "FREE" });
