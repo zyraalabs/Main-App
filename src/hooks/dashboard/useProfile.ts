@@ -1,21 +1,12 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { isAxiosError } from "axios";
+import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { axiosInstance } from "@/lib/axiosInstance";
-import { requestHandler } from "@/lib/requesthandler";
+import { updateProfileFn } from "@/lib/api/dashboard";
+import { extractErrorMessage } from "@/lib/query";
 import { profileSchema, type ProfileInput } from "@/lib/validations";
-
-interface ProfileResponse {
-  success: boolean;
-  data: { message: string };
-}
-
-const updateProfile = requestHandler((data?: ProfileInput) =>
-  axiosInstance.patch<ProfileResponse>("/dashboard/profile", data),
-);
 
 interface UseProfileOptions {
   defaultFirstName?: string;
@@ -24,6 +15,7 @@ interface UseProfileOptions {
 
 export function useProfile({ defaultFirstName = "", defaultLastName = "" }: UseProfileOptions = {}) {
   const [successMessage, setSuccessMessage] = useState("");
+  const { mutateAsync } = useMutation({ mutationFn: updateProfileFn });
 
   const form = useForm<ProfileInput>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -33,16 +25,11 @@ export function useProfile({ defaultFirstName = "", defaultLastName = "" }: UseP
 
   const onSubmit = form.handleSubmit(async (data) => {
     setSuccessMessage("");
-
-    const result = await updateProfile(data);
-
-    if (result.code === "success") {
+    try {
+      await mutateAsync(data);
       setSuccessMessage("Profile updated successfully.");
-    } else {
-      const message = isAxiosError<{ error?: string }>(result.error)
-        ? (result.error.response?.data?.error ?? "Failed to update profile.")
-        : "Network error. Please try again.";
-      form.setError("root", { message });
+    } catch (error) {
+      form.setError("root", { message: extractErrorMessage(error, "Failed to update profile.") });
     }
   });
 
