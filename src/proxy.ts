@@ -1,13 +1,17 @@
 import arcjet, { detectBot, shield } from "@arcjet/next";
 import { jwtVerify } from "jose";
 import { type NextRequest, NextResponse } from "next/server";
-import { HOME_URL, JWT_SECRET } from "@/lib/env";
+import { AUTH_SERVICE_URL, JWT_SECRET } from "@/lib/env";
+import { extractBearerToken } from "@/lib/bearer";
 
 const aj = arcjet({
   key: process.env.ARCJET_KEY!,
   rules: [
     shield({ mode: "LIVE" }),
-    detectBot({ mode: "LIVE", allow: ["CATEGORY:SEARCH_ENGINE", "CATEGORY:MONITOR"] }),
+    detectBot({
+      mode: "LIVE",
+      allow: ["CATEGORY:SEARCH_ENGINE", "CATEGORY:MONITOR"],
+    }),
   ],
 });
 
@@ -30,9 +34,14 @@ async function isValidToken(token: string): Promise<boolean> {
 }
 
 export async function proxy(request: NextRequest) {
-  const decision = await aj.protect(request);
-  if (decision.isDenied()) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  const isLocalhost =
+    request.nextUrl.hostname === "localhost" ||
+    request.nextUrl.hostname === "127.0.0.1";
+  if (!isLocalhost && process.env.NODE_ENV !== "development") {
+    const decision = await aj.protect(request);
+    if (decision.isDenied()) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
   }
 
   const { pathname } = request.nextUrl;
@@ -41,12 +50,13 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const token = request.cookies.get("auth-token")?.value;
+  const cookieToken = request.cookies.get("auth-token")?.value;
+  const bearerToken = extractBearerToken(request.headers.get("authorization"));
+  const token = cookieToken ?? bearerToken;
 
   if (!token || !(await isValidToken(token))) {
-    const response = NextResponse.redirect(HOME_URL);
+    const response = NextResponse.redirect(AUTH_SERVICE_URL);
     response.cookies.set("auth-token", "", { expires: new Date(0), path: "/" });
-    response.cookies.set("user-info", "", { expires: new Date(0), path: "/" });
     return response;
   }
 

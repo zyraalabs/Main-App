@@ -31,22 +31,7 @@ export async function GET(request: NextRequest) {
       ...(COOKIE_DOMAIN ? { domain: COOKIE_DOMAIN } : {}),
     };
 
-    console.log("[auth-callback] Setting auth-token with opts:", JSON.stringify(cookieOpts));
     response.cookies.set("auth-token", token, cookieOpts);
-    response.cookies.set(
-      "user-info",
-      JSON.stringify({
-        id: payload.sub,
-        email: payload.email,
-        name: payload.name,
-        emailVerified: payload.emailVerified,
-        isPremium: payload.isPremium,
-        plan: payload.plan,
-        trialUsed: payload.trialUsed,
-        usage: payload.usage,
-      }),
-      { ...cookieOpts, httpOnly: false },
-    );
 
     logger.info("auth-callback", `Auth successful: ${payload.email}`);
     return response;

@@ -5,7 +5,6 @@ import { logger } from "@/lib/logger";
 
 const ALL_COOKIES = [
   { name: "auth-token", httpOnly: true },
-  { name: "user-info", httpOnly: false },
   { name: "next-auth.session-token", httpOnly: true },
   { name: "__Secure-next-auth.session-token", httpOnly: true },
   { name: "next-auth.callback-url", httpOnly: false },

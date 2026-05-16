@@ -2,11 +2,9 @@
 
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/dashboard/form/page-header";
-import { getUserInfoFromCookie } from "@/lib/auth-client";
+import type { UserInfo } from "@/lib/auth";
 
-function PlanCard() {
-  const user = getUserInfoFromCookie();
-
+function PlanCard({ user }: { user: UserInfo | null }) {
   return (
     <div className="bg-card border border-border rounded-[10px] p-6 shadow-[0_0_32px_var(--brand-glow)] flex items-center justify-between mb-4">
       <div>
@@ -20,7 +18,7 @@ function PlanCard() {
         <p className="text-[12px] text-fg-subtle mt-2">
           {user?.isPremium
             ? "Unlimited builds · 1M tokens"
-            : `${user?.usage.remainingTrial ?? 0} builds remaining · 100k tokens · resets monthly`}
+            : `${user?.usage?.remainingTrial ?? 0} builds remaining · 100k tokens · resets monthly`}
         </p>
       </div>
       {!user?.isPremium && (
@@ -48,11 +46,11 @@ function InvoiceList() {
   );
 }
 
-export function BillingView() {
+export function BillingView({ user }: { user: UserInfo | null }) {
   return (
     <div className="py-7 px-8 max-w-2xl">
       <PageHeader title="Billing" sub="Manage your plan and payment history." />
-      <PlanCard />
+      <PlanCard user={user} />
       <InvoiceList />
     </div>
   );

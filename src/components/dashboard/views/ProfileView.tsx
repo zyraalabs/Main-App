@@ -5,11 +5,10 @@ import { FormCard } from "@/components/dashboard/form/form-card";
 import { FormField } from "@/components/dashboard/form/form-field";
 import { FormMessage } from "@/components/dashboard/form/form-message";
 import { PageHeader } from "@/components/dashboard/form/page-header";
-import { getUserInfoFromCookie } from "@/lib/auth-client";
 import { useProfile } from "@/hooks/dashboard/useProfile";
+import type { UserInfo } from "@/lib/auth";
 
-function PersonalInfoForm() {
-  const user = getUserInfoFromCookie();
+function PersonalInfoForm({ user }: { user: UserInfo | null }) {
   const nameParts = (user?.name ?? "").split(" ");
   const defaultFirstName = nameParts[0] ?? "";
   const defaultLastName = nameParts.slice(1).join(" ");
@@ -74,12 +73,12 @@ function DangerZone() {
   );
 }
 
-export function ProfileView() {
+export function ProfileView({ user }: { user: UserInfo | null }) {
   return (
     <div className="py-7 px-8 max-w-xl">
       <PageHeader title="Profile" sub="Update your personal information." />
       <div className="space-y-4">
-        <PersonalInfoForm />
+        <PersonalInfoForm user={user} />
         <DangerZone />
       </div>
     </div>

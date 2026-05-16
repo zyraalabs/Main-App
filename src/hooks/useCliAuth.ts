@@ -1,11 +1,10 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { getUserInfoFromCookie } from "@/lib/auth-client";
+import { useState } from "react";
 import { axiosInstance } from "@/lib/axiosInstance";
 import { requestHandler } from "@/lib/requesthandler";
-import { AUTH_SERVICE_URL } from "@/lib/env";
+import type { UserInfo } from "@/lib/auth";
 
 interface ApprovePayload {
   requestId: string;
@@ -25,27 +24,19 @@ const approveCliAccess = requestHandler((data?: ApprovePayload) =>
   axiosInstance.post<ApproveResponse>("/cli/approve", data),
 );
 
-export function useCliAuth() {
+export function useCliAuth(initialUser: UserInfo | null) {
   const searchParams = useSearchParams();
   const router = useRouter();
 
   const requestId = searchParams.get("req");
 
-  const [user, setUser] = useState<UserSnapshot | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user] = useState<UserSnapshot | null>(
+    initialUser
+      ? { name: initialUser.name, email: initialUser.email, plan: initialUser.plan ?? "FREE" }
+      : null,
+  );
   const [approving, setApproving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const userInfo = getUserInfoFromCookie();
-    if (!userInfo) {
-      const currentUrl = window.location.href;
-      window.location.href = `${AUTH_SERVICE_URL}/login?callbackUrl=${encodeURIComponent(currentUrl)}`;
-      return;
-    }
-    setUser({ name: userInfo.name, email: userInfo.email, plan: userInfo.plan ?? "FREE" });
-    setLoading(false);
-  }, []);
 
   const approve = async () => {
     if (!requestId) return;
@@ -55,10 +46,7 @@ export function useCliAuth() {
     const result = await approveCliAccess({ requestId });
 
     if (result.code === "error") {
-      const msg =
-        result.error instanceof Error
-          ? result.error.message
-          : "Failed to approve CLI access";
+      const msg = result.error instanceof Error ? result.error.message : "Failed to approve CLI access";
       setError(msg);
       setApproving(false);
       return;
@@ -69,5 +57,5 @@ export function useCliAuth() {
 
   const deny = () => router.push("/dashboard");
 
-  return { requestId, user, loading, approving, error, approve, deny };
+  return { requestId, user, loading: false, approving, error, approve, deny };
 }

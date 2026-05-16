@@ -20,14 +20,28 @@ function initials(name: string) {
     .toUpperCase();
 }
 
-function Avatar({ name, image, size }: { name: string; image?: string; size: number }) {
+function Avatar({
+  name,
+  image,
+  size,
+}: {
+  name: string;
+  image?: string;
+  size: number;
+}) {
   return (
     <div
       style={{ width: size, height: size }}
       className="rounded-full overflow-hidden shrink-0 bg-[linear-gradient(135deg,#2A1800,var(--brand-d))] border border-border-mid flex items-center justify-center text-brand-l font-bold"
     >
       {image ? (
-        <Image src={image} alt={name} width={size} height={size} className="size-full object-cover" />
+        <Image
+          src={image}
+          alt={name}
+          width={size}
+          height={size}
+          className="size-full object-cover"
+        />
       ) : (
         <span style={{ fontSize: size * 0.42 }}>{initials(name)}</span>
       )}
@@ -35,7 +49,15 @@ function Avatar({ name, image, size }: { name: string; image?: string; size: num
   );
 }
 
-function Dropdown({ name, email, onClose }: { name: string; email: string; onClose: () => void }) {
+function Dropdown({
+  name,
+  email,
+  onClose,
+}: {
+  name: string;
+  email: string;
+  onClose: () => void;
+}) {
   return (
     <>
       <button
@@ -46,8 +68,12 @@ function Dropdown({ name, email, onClose }: { name: string; email: string; onClo
       />
       <div className="absolute right-0 top-10 z-50 min-w-52 rounded-xl border border-border-mid bg-card shadow-lg">
         <div className="px-4 py-3">
-          <p className="text-[13px] font-semibold text-foreground truncate">{name}</p>
-          <p className="font-mono text-[11px] text-fg-subtle truncate">{email}</p>
+          <p className="text-[13px] font-semibold text-foreground truncate">
+            {name}
+          </p>
+          <p className="font-mono text-[11px] text-fg-subtle truncate">
+            {email}
+          </p>
         </div>
         <div className="border-t border-border" />
         <div className="p-1.5">
@@ -63,7 +89,12 @@ function Dropdown({ name, email, onClose }: { name: string; email: string; onClo
   );
 }
 
-export function UserMenu({ name, email, image, variant = "topnav" }: UserMenuProps) {
+export function UserMenu({
+  name,
+  email,
+  image,
+  variant = "topnav",
+}: UserMenuProps) {
   const [open, setOpen] = useState(false);
 
   if (variant === "sidebar") {
@@ -79,11 +110,17 @@ export function UserMenu({ name, email, image, variant = "topnav" }: UserMenuPro
         >
           <Avatar name={name} image={image} size={28} />
           <div className="min-w-0 flex-1 text-left">
-            <div className="text-[12px] font-semibold text-foreground truncate">{name}</div>
-            <div className="font-mono text-[10px] text-fg-subtle truncate">{email}</div>
+            <div className="text-[12px] font-semibold text-foreground truncate">
+              {name}
+            </div>
+            <div className="font-mono text-[10px] text-fg-subtle truncate">
+              {email}
+            </div>
           </div>
         </button>
-        {open && <Dropdown name={name} email={email} onClose={() => setOpen(false)} />}
+        {open && (
+          <Dropdown name={name} email={email} onClose={() => setOpen(false)} />
+        )}
       </div>
     );
   }
@@ -97,7 +134,9 @@ export function UserMenu({ name, email, image, variant = "topnav" }: UserMenuPro
       >
         <Avatar name={name} image={image} size={32} />
       </button>
-      {open && <Dropdown name={name} email={email} onClose={() => setOpen(false)} />}
+      {open && (
+        <Dropdown name={name} email={email} onClose={() => setOpen(false)} />
+      )}
     </div>
   );
 }

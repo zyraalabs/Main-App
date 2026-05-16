@@ -1,6 +1,9 @@
+import { redirect } from "next/navigation";
 import { Suspense } from "react";
+import { getCurrentUser } from "@/lib/auth";
 import { DashboardLogo } from "@/components/dashboard/dashboard-logo";
 import { CliAuthCard } from "@/components/cli-auth/cli-auth-card";
+import { AUTH_SERVICE_URL } from "@/lib/env";
 
 function LoadingFallback() {
   return (
@@ -16,12 +19,15 @@ function LoadingFallback() {
   );
 }
 
-export default function CliAuthPage() {
+export default async function CliAuthPage() {
+  const user = await getCurrentUser();
+  if (!user) redirect(`${AUTH_SERVICE_URL}/login`);
+
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4 gap-8">
       <DashboardLogo size="lg" />
       <Suspense fallback={<LoadingFallback />}>
-        <CliAuthCard />
+        <CliAuthCard user={user} />
       </Suspense>
     </div>
   );

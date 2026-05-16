@@ -14,6 +14,11 @@ export function createQueryConfig<T>(
   return {
     queryKey: key,
     queryFn: async () => (await fetcher()).data.data,
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 30,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
     ...options,
   };
 }
@@ -21,7 +26,8 @@ export function createQueryConfig<T>(
 export function createMutationFn<TData, TVariables = void>(
   fetcher: (vars: TVariables) => Promise<AxiosResponse<ApiResponse<TData>>>,
 ) {
-  return async (vars: TVariables): Promise<TData> => (await fetcher(vars)).data.data;
+  return async (vars: TVariables): Promise<TData> =>
+    (await fetcher(vars)).data.data;
 }
 
 export function extractErrorMessage(error: unknown, fallback: string): string {

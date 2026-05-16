@@ -1,5 +1,6 @@
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { verifyJWT } from "./jwt";
+import { extractBearerToken } from "./bearer";
 import { logger } from "./logger";
 
 export interface UserInfo {
@@ -20,18 +21,16 @@ export interface UserInfo {
 export async function getCurrentUser(): Promise<UserInfo | null> {
   try {
     const cookieStore = await cookies();
-    const authToken = cookieStore.get("auth-token");
+    const headerStore = await headers();
 
-    if (!authToken) {
-      logger.warn("auth-utils", "No auth token found in cookies");
-      return null;
-    }
+    const cookieToken = cookieStore.get("auth-token")?.value;
+    const bearerToken = extractBearerToken(headerStore.get("authorization"));
+    const token = cookieToken ?? bearerToken;
 
-    const payload = verifyJWT(authToken.value);
-    if (!payload) {
-      logger.warn("auth-utils", "Invalid or expired auth token");
-      return null;
-    }
+    if (!token) return null;
+
+    const payload = verifyJWT(token);
+    if (!payload) return null;
 
     return {
       id: payload.sub,
