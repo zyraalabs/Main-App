@@ -1,6 +1,15 @@
+import arcjet, { detectBot, shield } from "@arcjet/next";
 import { jwtVerify } from "jose";
 import { type NextRequest, NextResponse } from "next/server";
 import { HOME_URL, JWT_SECRET } from "@/lib/env";
+
+const aj = arcjet({
+  key: process.env.ARCJET_KEY!,
+  rules: [
+    shield({ mode: "LIVE" }),
+    detectBot({ mode: "LIVE", allow: ["CATEGORY:SEARCH_ENGINE", "CATEGORY:MONITOR"] }),
+  ],
+});
 
 const PUBLIC_PREFIXES = [
   "/api/auth/callback",
@@ -21,6 +30,11 @@ async function isValidToken(token: string): Promise<boolean> {
 }
 
 export async function proxy(request: NextRequest) {
+  const decision = await aj.protect(request);
+  if (decision.isDenied()) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   const { pathname } = request.nextUrl;
 
   if (PUBLIC_PREFIXES.some((p) => pathname.startsWith(p))) {
